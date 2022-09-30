@@ -3,3 +3,4 @@ gitignore
 .vscode/
 __pycache__
 naarden/__pycache__
+--*

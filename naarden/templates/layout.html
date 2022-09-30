@@ -49,19 +49,20 @@
         </div>
     </nav>
 
+    <!-- flash message -->
     {% with messages = get_flashed_messages( with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="row justify-content-center mt-2">
-        <div class="col-6 alert alert-{{ category }}">
-            {{ message }}
-        </div>
-    </div>
-    {% endfor %}
-    {% endif%}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="row justify-content-center mt-2">
+                <div class="col-6 alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            </div>
+            {% endfor %}
+        {% endif%}
     {% endwith %}
 
-    <main class="container py-5 text-center">
+    <main>
         {% block main %}{% endblock %}
     </main>
 

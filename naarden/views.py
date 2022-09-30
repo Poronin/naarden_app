@@ -22,7 +22,7 @@ def login():
         if user and bcrypt.check_password_hash(user.hash , form.password.data):
             login_user(user, remember=True)
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect('index')
+            return redirect(next_page) if next_page else redirect(url_for('index'))
         else:
             flash(f'Log-in unsuccessfully', 'danger') 
     return render_template("login.html", form=form)
