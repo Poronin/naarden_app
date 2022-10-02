@@ -11,16 +11,16 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField('Confirm password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Register')
 
-def validate_username(self, username):
-    user = Users.query.filter_by(username=username.data).first()
-    if user:
-        raise ValidationError('User already exists')
-
-def validate_email(self, email):
-    email = Users.query.filter_by(email=email.data).first()
-    if email:
-        raise ValidationError('Email already exists')
-
+    def validate_username(self, username):
+        user = Users.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('User already exists')
+    
+    def validate_email(self, email):
+        email = Users.query.filter_by(email=email.data).first()
+        if email:
+            raise ValidationError('Email already exists')
+    
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
