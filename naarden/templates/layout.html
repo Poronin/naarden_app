@@ -26,7 +26,7 @@
 
     <nav class="bg-light border navbar navbar-expand-md navbar-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/"><span>SQL Generator</span></a>
+            <a class="navbar-brand ms-2 me-4" href="/"><span>Naarden</span></a>
             <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
                 data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
                 <span class="navbar-toggler-icon"></span>
@@ -52,15 +52,15 @@
 
     <!-- flash message -->
     {% with messages = get_flashed_messages( with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-            <div class="row justify-content-center mt-2">
-                <div class="col-6 alert alert-{{ category }}">
-                    {{ message }}
-                </div>
-            </div>
-            {% endfor %}
-        {% endif%}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="row justify-content-center mt-2">
+        <div class="col-6 alert alert-{{ category }}">
+            {{ message }}
+        </div>
+    </div>
+    {% endfor %}
+    {% endif%}
     {% endwith %}
 
     <main>
@@ -74,6 +74,7 @@
             </footer>
         </div>
     </div>
+
 </body>
 
 </html>
