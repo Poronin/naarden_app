@@ -1,6 +1,6 @@
 from crypt import methods
 from flask import flash, redirect, render_template, request, session, url_for
-from naarden.forms import RegistrationForm, LoginForm
+from naarden.forms import RegistrationForm, LoginForm, UploadTablesFile, UploadColumnsFile, UploadRelationshipsFile
 from naarden.models import Users, Tables, Columns
 from naarden import app
 from naarden import db
@@ -93,7 +93,7 @@ def columns():
                                                     )
                                                 )
     else:
-        user_columns = Columns.query.filter_by(user_id=current_user.id)
+        user_columns = Columns.query.filter_by(user_id=current_user.id).limit(1000).all()
     return render_template("columns.html", columns=user_columns)
 
 
@@ -114,7 +114,70 @@ def table_columns(table_columns):
                                                             Columns.length.like(q)
                                                         )
                                                     )
-                                                )
+                                                ).order_by(Columns.id)
     else:
         user_table_columns = Columns.query.filter_by(user_id=current_user.id, table_name=table_columns)
     return render_template("columns.html", columns=user_table_columns, table_name=table_columns)
+
+
+##################
+# upload webpage #
+##################
+@app.route("/upload")
+@login_required
+def upload():
+    formTablesFile = UploadTablesFile()
+    formColumnsFile = UploadColumnsFile()
+    formRelationshipsFile = UploadRelationshipsFile()
+    return render_template('upload.html', 
+                            formTablesFile=formTablesFile,
+                            formColumnsFile=formColumnsFile,
+                            formRelationshipsFile=formRelationshipsFile)
+
+
+@app.route("/upload/tables", methods=['POST'])
+@login_required
+def upload_tables():
+    formTablesFile = UploadTablesFile()
+    formColumnsFile = UploadColumnsFile()
+    formRelationshipsFile = UploadRelationshipsFile()
+    if formTablesFile.validate_on_submit():
+        db.session.commit()
+        flash(f'File processed correctly!', 'success')
+        return redirect(url_for('tables'))
+    return render_template('upload.html', 
+                            formTablesFile=formTablesFile,
+                            formColumnsFile=formColumnsFile,
+                            formRelationshipsFile=formRelationshipsFile)
+
+
+@app.route("/upload/columns", methods=['POST'])
+@login_required
+def upload_columns():
+    formTablesFile = UploadTablesFile()
+    formColumnsFile = UploadColumnsFile()   
+    formRelationshipsFile = UploadRelationshipsFile()
+    if formColumnsFile.validate_on_submit():
+        db.session.commit()
+        flash(f'File processed correctly!', 'success')
+        return redirect(url_for('columns'))
+    return render_template('upload.html', 
+                            formTablesFile=formTablesFile,
+                            formColumnsFile=formColumnsFile,
+                            formRelationshipsFile=formRelationshipsFile)
+
+
+@app.route("/upload/relationships", methods=['POST'])
+@login_required
+def upload_relationships():
+    formTablesFile = UploadTablesFile()
+    formColumnsFile = UploadColumnsFile()
+    formRelationshipsFile = UploadRelationshipsFile()
+    if formRelationshipsFile.validate_on_submit():
+        db.session.commit()
+        flash(f'File processed correctly!', 'success')
+        return redirect(url_for('tables'))
+    return render_template('upload.html', 
+                            formTablesFile=formTablesFile,
+                            formColumnsFile=formColumnsFile,
+                            formRelationshipsFile=formRelationshipsFile)

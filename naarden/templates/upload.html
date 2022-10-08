@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block title %}
+upload
+{% endblock %}
+
+{% block main %}
+
+<div class="container-xxl text-center py-5">
+    <div class="row justify-content-center">
+        <!-- Columns start at 100% wide on mobile and bump up to 1/4%  large screen on desktop -->
+        <div class="col-12 col-lg-4 text-start">
+            <form action="/upload/tables" enctype="multipart/form-data" method="post">
+                {{ formTablesFile.hidden_tag() }}
+                <label for="basic-url" class="form-label mt-5">File containing the tables:</label>
+                <div class="input-group">
+                    {{ formTablesFile.file(class="form-control", id="inputGroupFile04", type="file") }}
+                    {{ formTablesFile.submit(class="btn btn-outline-secondary", type="submit",
+                    id="inputGroupFileAddon04") }}
+                </div>
+                {% if formTablesFile.file.errors %}
+                    {% for error in formTablesFile.file.errors %}
+                        <div class="text-danger overflow-visible" for="floatingInputInvalid">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </form>
+            <form action="/upload/columns" enctype="multipart/form-data" method="post" class="mt-2">
+                {{ formColumnsFile.hidden_tag() }}
+                <label for="basic-url" class="form-label mt-5">File containing the fields:</label>
+                <div class="input-group">
+                    {{ formColumnsFile.file(class="form-control", id="inputGroupFile04") }}
+                    {{ formColumnsFile.submit(class="btn btn-outline-secondary", type="submit",
+                    id="inputGroupFileAddon04") }}
+                </div>
+                {% if formColumnsFile.file.errors %}
+                    {% for error in formColumnsFile.file.errors %}
+                        <div class="text-danger overflow-visible" for="floatingInputInvalid">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </form>
+            <form action="/upload/relationships" enctype="multipart/form-data" method="post" class="mt-2">
+                {{ formRelationshipsFile.hidden_tag() }}
+                <label for="basic-url" class="form-label mt-5">File containing relationship between tables:</label>
+                <div class="input-group">
+                    {{ formRelationshipsFile.file(class="form-control", id="inputGroupFile04") }}
+                    {{ formRelationshipsFile.submit(class="btn btn-outline-secondary", type="submit",
+                    id="inputGroupFileAddon04") }}
+                </div>
+                {% if formRelationshipsFile.file.errors %}
+                    {% for error in formRelationshipsFile.file.errors %}
+                        <div class="text-danger overflow-visible" for="floatingInputInvalid">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

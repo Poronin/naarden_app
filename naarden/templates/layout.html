@@ -14,23 +14,22 @@
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"></script>
 
     <!-- https://favicon.io/emoji-favicons/money-bag/ -->
-    <link href="/static/favicon.ico" rel="icon">
-
-    <link href="/static/styles.css" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" >
 
     <title>Naarden: {% block title %}{% endblock %}</title>
 
 </head>
 
-<body>
 
+<body>
     <nav class="bg-light border navbar navbar-expand-md navbar-light">
         <div class="container-fluid">
             <a class="navbar-brand ms-2 me-4" href="/"><span>Naarden</span></a>
             <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
                 data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
                 <span class="navbar-toggler-icon"></span>
-            </button>
+            </button>   
             <div class="collapse navbar-collapse" id="navbar">
                 {% if current_user.is_authenticated %}
                 <ul class="navbar-nav me-auto mt-2">
@@ -38,6 +37,7 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('columns') }}">Fields</a></li>
                 </ul>
                 <ul class="navbar-nav ms-auto mt-2">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('upload') }}">Uploads</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Log Out</a></li>
                 </ul>
                 {% else %}
@@ -70,7 +70,7 @@
     <div class="row bottom-footer">
         <div class="col">
             <footer class="mb-5 small text-center text-muted">
-                Data providedby <a href="https://Bol.com">Bol.com</a>
+                Data provided by <a href="https://Bol.com">Bol.com</a>
             </footer>
         </div>
     </div>

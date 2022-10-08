@@ -37,6 +37,7 @@ class Columns(db.Model):
     __tablename__ = 'columns'
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     table_name = db.Column(db.Text, db.ForeignKey('tables.table_name'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     column_name = db.Column(db.Text(), primary_key=True)
     logical_entity = db.Column(db.Text(), nullable=False)
     description = db.Column(db.Text(), nullable=True)
@@ -47,3 +48,12 @@ class Columns(db.Model):
 
     def __repr__(self):
         return f"User('{self.user_id}', '{self.table_name}', '{self.column_name}','{self.logical_entity}', '{self.description}','{self.type}', '{self.length}', '{self.key}','{self.virtual}')"
+
+
+class Relationships(db.Model):
+    __tablename__ = 'relationships'
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'),primary_key=True)
+    file = db.Column(db.Text(), nullable=False)
+
+    def __repr__(self):
+        return f"{self.user_id}, file"
