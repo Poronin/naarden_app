@@ -4,9 +4,14 @@ from naarden.forms import RegistrationForm, LoginForm, UploadTablesFile, UploadC
 from naarden.models import Users, Tables, Columns
 from naarden import app
 from naarden import db
-from sqlalchemy import and_, or_, not_
+from sqlalchemy import and_, or_
 from naarden import bcrypt
 from flask_login import login_user, logout_user, current_user, login_required
+import json
+
+
+added_tables = None
+tables_to_query = []
 
 @app.route("/")
 def index():
@@ -39,8 +44,8 @@ def register():
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         new_user = Users(username=form.username.data,
-        email=form.email.data,
-        hash=hashed_password)
+                        email=form.email.data,
+                        hash=hashed_password)
         db.session.add(new_user)
         db.session.commit()
         flash(f'Account created for {form.username.data}. You can now log in!', 'success')
@@ -57,9 +62,16 @@ def logout():
 @app.route("/tables", methods=['GET', 'POST'])
 @login_required
 def tables():
+    # get requests
     q = request.args.get("q")
+    add = request.args.get("add")
+    remove = request.args.get("remove")
+
+    # process requests
     if q:
         q = "%{}%".format(request.args.get("q")).upper()
+        q = q.replace(' ','%')
+        print(q)
         user_tables = Tables.query.filter(  Tables.user_id==current_user.id,
                                             and_(
                                                 or_(
@@ -70,15 +82,35 @@ def tables():
                                                 )
                                             )
                                         )
+    elif add:
+        if not add in tables_to_query:
+            tables_to_query.append(add)
+            added_tables = Tables.query.filter(Tables.user_id==current_user.id, and_(Tables.table_name == add)).first()
+            print(f'Added table: {added_tables.table_name}')
+            print(f'List of tables to query after adding: {tables_to_query}')
+            return [{"table_name":added_tables.table_name, "logical_entity":added_tables.logical_entity, "description":added_tables.description}]     
+        else:
+            return {}
+    elif remove:
+        if remove in tables_to_query:
+            tables_to_query.remove(remove)
+            added_tables = Tables.query.filter(Tables.user_id==current_user.id, and_(Tables.table_name == remove)).first()
+            print(f'Removed talble: {added_tables.table_name}')
+            print(f'List of tables to query after removing: {tables_to_query}')
+            return {"table_name":added_tables.table_name, "logical_entity":added_tables.logical_entity, "description":added_tables.description}     
+        else:
+            return {}
     else:
         user_tables = Tables.query.filter(Tables.user_id==current_user.id)
-    return render_template("tables.html", user_tables=user_tables)
+    added_tables = Tables.query.filter(Tables.user_id==current_user.id, and_(Tables.table_name.in_(tables_to_query)))
+    return render_template("tables.html", user_tables=user_tables, added_tables=added_tables, tables_to_query=tables_to_query)
 
 
-@app.route("/columns")
+@app.route("/columns")  
 @login_required
 def columns():
     q = request.args.get("q")
+    q = q.replace(' ','%')
     if q:
         q = "%{}%".format(request.args.get("q")).upper()
         user_columns = Columns.query.filter(  Columns.user_id==current_user.id,

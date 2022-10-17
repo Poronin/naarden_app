@@ -36,7 +36,7 @@ Columns
                 {% if table_name %}
                 <p class="fs-2 text-start">{{ table_name }}</p>
                 {% else %}
-                <p class="fs-2 text-start">Fields</p>
+                <p class="fs-2 text-start">All Fields</p>
                 {% endif %}
                 <table class="table table-striped table-hover mt-4">
                     <thead>
@@ -55,13 +55,13 @@ Columns
                         {% for column in columns %}
                         <tr data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">
                             <th scope="row">{{ loop.index | upper }}</th>
-                            <td id="table-text" class="text-start">{{ column.column_name | upper }}</td>
-                            <td id="table-text" class="text-start">{{ column.logical_entity | upper }}</td>
-                            <td id="table-text" class="text-start">{{ column.description | capitalize }}</td>
-                            <td id="table-text" class="text-start">{{ column.type | capitalize }}</td>
-                            <td id="table-text" class="text-start">{{ column.length | upper }}</td>
-                            <td class="text-start">{{ column.key | upper }}</td>
-                            <td class="text-start">{{ column.virtual | lower}}</td>
+                            <td id="table-text" class="text-start" data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">{{ column.column_name | upper }}</td>
+                            <td id="table-text" class="text-start" data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">{{ column.logical_entity | upper }}</td>
+                            <td id="table-text" class="text-start" data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">{{ column.description | capitalize }}</td>
+                            <td id="table-text" class="text-start" data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">{{ column.type | capitalize }}</td>
+                            <td id="table-text" class="text-start" data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">{{ column.length | upper }}</td>
+                            <td class="text-start" data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">{{ column.key | upper }}</td>
+                            <td class="text-start" data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">{{ column.virtual | lower}}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

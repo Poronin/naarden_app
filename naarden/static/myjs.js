@@ -3,7 +3,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     // add anchor elements in each of the table row 
-    const rows = document.querySelectorAll("tr[data-href]");
+    const rows = document.querySelectorAll("td[data-href]");
     console.log(rows);
 
     rows.forEach(row => {
