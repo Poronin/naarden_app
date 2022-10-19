@@ -20,7 +20,7 @@ def index():
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     """ User login """
-    if current_user.is_authenticated:
+    if current_user.is_authenticated:  # type: ignore
         return redirect(url_for('tables'))    
     form = LoginForm()
     if form.validate_on_submit():
@@ -110,8 +110,8 @@ def tables():
 @login_required
 def columns():
     q = request.args.get("q")
-    q = q.replace(' ','%')
     if q:
+        q = q.replace(' ','%')
         q = "%{}%".format(request.args.get("q")).upper()
         user_columns = Columns.query.filter(  Columns.user_id==current_user.id,
                                                     and_(
