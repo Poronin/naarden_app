@@ -37,7 +37,6 @@ def login():
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     """ User registration """
-
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = RegistrationForm()
@@ -66,7 +65,6 @@ def tables():
     q = request.args.get("q")
     add = request.args.get("add")
     remove = request.args.get("remove")
-
     # process requests
     if q:
         q = "%{}%".format(request.args.get("q")).upper()
@@ -125,7 +123,7 @@ def columns():
                                                     )
                                                 )
     else:
-        user_columns = Columns.query.filter_by(user_id=current_user.id).limit(1000).all()
+        user_columns = Columns.query.filter_by(user_id=current_user.id).limit(100).all()
     return render_template("columns.html", columns=user_columns)
 
 

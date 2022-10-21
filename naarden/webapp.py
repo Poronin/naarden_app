@@ -4,6 +4,10 @@ from os import remove
 from naarden import app    # For application discovery by the 'flask' command.
 from naarden import views  # For import side-effects of setting up routes.
 from naarden.models import Relationships
+from naarden.models import Users, Tables, Columns
+from sqlalchemy import and_, or_
+from naarden import bcrypt
+from flask_login import current_user
 import json
 import collections
 import itertools
@@ -18,6 +22,7 @@ class Node():
 
 
 class QueueFrontier():
+    """ FIFO memory - Fist node In First Out"""
     def __init__(self):
         self.frontier = []
     
@@ -32,29 +37,29 @@ class QueueFrontier():
             self.frontier = self.frontier[1:]
             return node
 
-
     def empty(self):
         return len(self.frontier) == 0
-    
-    #def contains_state(self, state):
-    #    return any(state == node.state for node in self.frontier)
 
-    
+
 class Model():
     def __init__(self, user:int):
         row = Relationships.query.filter_by(user_id=user).first()
         self.file = json.loads(row.file)
-        self.solutions = [] # list of solutions (all possible paths)
+        # list of solutions (all possible paths)
+        self.solutions = []
+        self.nodes = set()
         self.num_tables = len(self.file)
+        self.user_id = user
         #self.num_relations = len(relation for table in self.file for relation in table if relation)
 
     def neighbors(self, node): # states
-        """ Gets state's node and return its neighbors nodes """
+        """ Gets a node and return its neighbors nodes in a list """
         neighbor = None
         neighbors = []
         # find node name from file to posteriory find its neigthbors
         try:
             for from_node in self.file[node.state]:
+                # create neighbord nodes
                 neighbor = Node(state=from_node['to']['table'], key=from_node['to']['key'], parent=node)
                 neighbors.append(neighbor)
             return neighbors
@@ -88,15 +93,12 @@ class Model():
         max_branch_length = 9999
         solution = []
         solutions = []
-
-        if 2 < len(pair_node) < 1:
+        # validate "pair_node" input 
+        if len(pair_node) < 2:
             raise Exception("Parameter exptect two values")
 
-
-        if len(pair_node) == 1:
-            return pair_node[0]
-
         # add first node
+        # for instance for a giving input['A','B'] checks either the path from 'A' -> 'B' and from 'B' to 'A'
         for new_start in pair_node:
             start = Node(new_start, None, None)
             frontier = QueueFrontier()
@@ -105,7 +107,6 @@ class Model():
             frontier.add(start)
 
             print(f'Start branch node: {start.state}')
-
             while True:
                 
                 if frontier.empty():
@@ -131,23 +132,21 @@ class Model():
                         if node.parent is None:
                             break
                         node = node.parent
-                    
                     solution.reverse()
-                    # branch length
                     branch_length = len(solution)
                     print(f'\tPosible solution: {solution}. Branch num: {branch_length}')
-                    
+                    # check the solution is valid so contains all given nodes
                     if self._validate_solution(pair_node, solution):
+                        # store length solution
                         if len(solution) < max_branch_length:
-                            max_branch_length = len(solution)
-                        print(f'\t\t\t Valid solution: {solution}\n\t\t\t Max_branch length: {max_branch_length}')
+                            max_branch_length = branch_length
                         solutions.append(solution)
+                        print(f'\t\t\t Valid solution: {solution}\n\t\t\t Max_branch length: {max_branch_length}')
                     solution = []  
                 else:
                     print(f'\tExceed max branch length: {node.state}')
                     solution = []
                     break
-
         print(f'Final solutions: {solutions}')
         return self._optimal_solution(pair_node, solutions)
 
@@ -163,27 +162,53 @@ class Model():
         return None
 
     def search(self, nodes_to_find):
-        """ Gets a list of nodes and return a path that joins them all based on the model
+        """ Gets a list of nodes and return a path that joins them all based on the given model
             It returns a list of tupple where each tupple indicate a join between two nodes """
         unified_paths = []
-        
-        if len(nodes_to_find) == 1:
+        # validate input 
+        if len(nodes_to_find) < 2:
             self.solutions = nodes_to_find
             return self.solutions
-        
         # create a set of pair nodes. For example: convert ['A','B','C'] into [('A','B') ('B','C')]
         nodes_to_find = list(self.pairwise(nodes_to_find))
         # for each pair of node find the best path
+        
         for pair_nodes in nodes_to_find:    
             self.solutions.append(self.get_path(pair_nodes))
+        
+        nodes = list(itertools.chain.from_iterable(self.solutions))
+        self.nodes = set(nodes)
 
         # create pair set of two. For example: convert ['A','B','C'] into [('A','B') ('B','C')]
         for path in self.solutions:
             p = (list(self.pairwise(path)))
             unified_paths += p
         self.solutions = list(set(unified_paths))
-        
         return self.solutions
+
+    def query(self, env='WMS.'):
+        query_select = str()
+        query_from = str()
+        query_where = 'WHERE\t'
+        query_select += "SELECT * \nFROM"
+        for index, table in enumerate(self.nodes):
+            row = Tables.query.filter(Tables.user_id==self.user_id, and_(Tables.table_name==table)).first()
+            if index == 0:
+                query_from += '\t' + env + table + '\t' + '-- ' + row.description + '\n'
+            else:
+                query_from += 'AND' + '\t' + env + table + '\t' + '-- ' + row.description + '\n'
+            
+        for index, join in enumerate(self.solutions):
+            if index != 0:
+                query_where += 'AND\t'
+            f, t = join
+            row = Tables.query.filter(Tables.user_id==self.user_id, and_(Tables.table_name==f)).first()
+            for from_node in self.file[f]:
+                if from_node['from']['table'] == f and from_node['to']['table'] == t:
+                    query_where += ' AND '.join([k1+'='+k2 for k1, k2 in zip(from_node['from']['key'], from_node['to']['key'])])
+                    query_where += ' -- '+ row.description +'\n'
+        query_where += ';'
+        return query_select + query_from +  query_where
 
 
 
