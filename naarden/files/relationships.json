@@ -1,0 +1,73 @@
+{
+	"relationships": [
+		{
+				"from": {
+					"table": "HLPRENP",
+					"primary_key": [
+						"HLPREN1",
+						"HLPREN2",
+						"HLPREN3"
+					]
+				},
+				"to": {
+					"table": "HLPRENP",
+					"key": [
+						"HLPREN1",
+						"HLPREN2",
+						"HLPREN3"
+					]
+				}
+			,
+				"from": {
+					"table": "HL_PREN_P",
+					"key": [
+						"HL_PREN_1",
+						"HL_PREN_2",
+						"HL_PREN_3"
+					]
+				},
+				"to": {
+					"table": "HL_PREN_P",
+					"key": [
+						"HL_PREN_1",
+						"HL_PREN_2",
+						"HL_PREN_3"
+					]
+				}
+		},
+		{
+				"from": {
+					"table": "HLPRENP",
+					"primary_key": [
+						"HLPREN1",
+						"HLPREN2",
+						"HLPREN3"
+					]
+				},
+				"to": {
+					"table": "HLPRENP",
+					"key": [
+						"HLPREN1",
+						"HLPREN2",
+						"HLPREN3"
+					]
+			},
+				"from": {
+					"table": "HL_PREN_P",
+					"key": [
+						"HL_PREN_1",
+						"HL_PREN_2",
+						"HL_PREN_3"
+					]
+				},
+				"to": {
+					"table": "HL_PRENP",
+					"key": [
+						"HL_PREN_1",
+						"HL_PREN_2",
+						"HL_PREN_3"
+					]
+			}
+		}
+	]
+}
