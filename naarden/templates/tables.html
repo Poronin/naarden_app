@@ -56,17 +56,20 @@ Tables
                     {% endfor %}
                 </tbody>
             </table>
-            <div class="row justify-content-center">
-                <div class="col-11 border-top border-secondary mt-3"></div>
-                <div class="col-1 d-grid p-0">
-                    <button type="button" class="btn btn-outline-secondary btn-sm">Get Query</button>
-                </div>
-            </div>
+
             <div class="row justify-content-center mt-3">
-                <div class="col-9">
-                    <textarea class="form-control" placeholder="Query" id="floatingTextarea2" style="height: 100px" hidden></textarea>
+                <div class="col-12">
+                    <textarea class="form-control" placeholder="Query" id="floatingTextarea2" style="height: 100px"></textarea>
                 </div>
             </row>
+
+            <div class="row justify-content-center mt-3">
+                <div class="col-11 border-top border-secondary mt-3"></div>
+                <div class="col-1 d-grid p-0">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="get_sql_query()">Get Query</button>
+                </div>
+            </div>  
+
             
             <!-- All tables -->
             <p class="fs-3 pt-4 text-start">Tables</p>
@@ -206,6 +209,13 @@ Tables
         row.outerHTML = '';
     }
 
+    async function get_sql_query(tableName) {
+        let response = await fetch("{{ url_for('sqlquery') }}");
+        response = await response.text( );
+        let text_area = document.getElementById('floatingTextarea2');
+        text_area.innerHTML =' '
+        text_area.innerHTML = response
+    }
 
 </script>
 

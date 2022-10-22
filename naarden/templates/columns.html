@@ -34,7 +34,7 @@ Columns
                 </form>
 
                 {% if table_name %}
-                <p class="fs-2 text-start">{{ table_name }}</p>
+                <p class="fs-3 text-start">{{ table_name }} - {{ table_description }}</p>
                 {% else %}
                 <p class="fs-2 text-start">All Fields</p>
                 {% endif %}
@@ -54,9 +54,9 @@ Columns
                     <tbody>
                         {% for column in columns %}
                         <tr data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">
-                            <th scope="row">{{ loop.index | upper }}</th>
-                            <td id="table-text" class="text-start" data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">{{ column.column_name | upper }}</td>
-                            <td id="table-text" class="text-start" data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">{{ column.logical_entity | upper }}</td>
+                            <th scope="row" data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">{{ loop.index | upper }}</th>
+                            <td id="table-text" class="text-start" >{{ column.column_name | upper }}</td>
+                            <td id="table-text" class="text-start" >{{ column.logical_entity | upper }}</td>
                             <td id="table-text" class="text-start" data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">{{ column.description | capitalize }}</td>
                             <td id="table-text" class="text-start" data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">{{ column.type | capitalize }}</td>
                             <td id="table-text" class="text-start" data-href="{{ url_for('table_columns' , table_columns=column.table_name) }}">{{ column.length | upper }}</td>

@@ -18,15 +18,13 @@ from flask import current_app
 #app_ctx = app.app_context()
 #app_ctx.push()
 #current_app.name
-
-
-user = Users.query.filter_by(email='test1@gmail.com').first()
-login_user(user, remember=True)
+#user = Users.query.filter_by(email='test1@gmail.com').first()
+#login_user(user, remember=True)
 
 model = Model(1)
 
 # nodes input from user
-nodes_to_find = ['HLGEINP','HLODPEP','HLATELP']
+nodes_to_find = ['HLATELP', 'HLPLLPP']
 
 model.search(nodes_to_find)
 

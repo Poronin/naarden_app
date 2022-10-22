@@ -8,7 +8,7 @@ from sqlalchemy import and_, or_
 from naarden import bcrypt
 from flask_login import login_user, logout_user, current_user, login_required
 import json
-
+from naarden.webapp import Model
 
 added_tables = None
 tables_to_query = []
@@ -99,7 +99,7 @@ def tables():
         else:
             return {}
     else:
-        user_tables = Tables.query.filter(Tables.user_id==current_user.id)
+        user_tables = Tables.query.filter(Tables.user_id==current_user.id).limit(100).all()
     added_tables = Tables.query.filter(Tables.user_id==current_user.id, and_(Tables.table_name.in_(tables_to_query)))
     return render_template("tables.html", user_tables=user_tables, added_tables=added_tables, tables_to_query=tables_to_query)
 
@@ -131,6 +131,7 @@ def columns():
 @login_required
 def table_columns(table_columns):
     q = request.args.get("q")
+    table = Tables.query.filter(Tables.user_id==current_user.id, and_(Tables.table_name==table_columns)).first()
     if q:
         q = "%{}%".format(request.args.get("q")).upper()
         user_table_columns = Columns.query.filter(  Columns.user_id==current_user.id,
@@ -147,7 +148,19 @@ def table_columns(table_columns):
                                                 ).order_by(Columns.id)
     else:
         user_table_columns = Columns.query.filter_by(user_id=current_user.id, table_name=table_columns)
-    return render_template("columns.html", columns=user_table_columns, table_name=table_columns)
+    return render_template("columns.html", columns=user_table_columns, table_name=table_columns, table_description=table.description )
+
+
+@app.route("/sqlquery", methods=['GET','POST'])
+@login_required
+def sqlquery():
+    model = Model(current_user.id)
+    model.search(tables_to_query)
+    model.remove_bidirectional_nodes()
+    query = model.query()
+    if not query:
+        return "No relationship found"
+    return query
 
 
 ##################

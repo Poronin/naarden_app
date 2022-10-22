@@ -64,7 +64,8 @@ class Model():
                 neighbors.append(neighbor)
             return neighbors
         except KeyError:
-            print(f'Branch ends in Node {node.state}.')
+            print(f'\t\tBranch ends in Node {node.state}.')
+            return None
 
     def _optimal_solution(self, nodes_to_find, solutions): # states
         """ Returns the smalles list that contains all nodes states present in nodes_to_find """
@@ -101,7 +102,7 @@ class Model():
         # for instance for a giving input['A','B'] checks either the path from 'A' -> 'B' and from 'B' to 'A'
         for new_start in pair_node:
             start = Node(new_start, None, None)
-            frontier = QueueFrontier()
+            frontier = QueueFrontier() # FIFO
             self.explored = set()
             branch_length = 0
             frontier.add(start)
@@ -109,10 +110,6 @@ class Model():
             print(f'Start branch node: {start.state}')
             while True:
                 
-                if frontier.empty():
-                    print("Finished. there is no more relations between nodes")
-                    break
-
                 # get a node from a frontier
                 node = frontier.remove()
                 
@@ -121,10 +118,13 @@ class Model():
                     self.explored.add(node.state)
                     # from this node find a neighbors nodes
                     _neighbors = self.neighbors(node)
-                    # remove explore nodes from the neighbors
-                    neighbors = [n for n in _neighbors if n.state not in self.explored]
-                    # add them to the frontier
-                    frontier.frontier += neighbors
+                    
+                    # 
+                    if _neighbors:
+                        # remove explore nodes from the neighbors
+                        neighbors = [n for n in _neighbors if n.state not in self.explored]
+                        # add them to the frontier
+                        frontier.frontier += neighbors
 
                     # for each new node check if it is a possible path containing the solution.
                     while True:
@@ -147,6 +147,11 @@ class Model():
                     print(f'\tExceed max branch length: {node.state}')
                     solution = []
                     break
+
+                if frontier.empty():
+                    print("Finished. there is no more relations between nodes")
+                    break
+
         print(f'Final solutions: {solutions}')
         return self._optimal_solution(pair_node, solutions)
 
@@ -173,9 +178,15 @@ class Model():
         nodes_to_find = list(self.pairwise(nodes_to_find))
         # for each pair of node find the best path
         
-        for pair_nodes in nodes_to_find:    
-            self.solutions.append(self.get_path(pair_nodes))
-        
+        for pair_nodes in nodes_to_find:
+            _solution = self.get_path(pair_nodes)    
+            if _solution:
+                self.solutions.append(_solution)
+
+        if not self.solutions:
+            return None
+
+        # get distinct nodes by adding them all to a set()
         nodes = list(itertools.chain.from_iterable(self.solutions))
         self.nodes = set(nodes)
 
@@ -187,26 +198,37 @@ class Model():
         return self.solutions
 
     def query(self, env='WMS.'):
-        query_select = str()
+        # generate tables
         query_from = str()
         query_where = 'WHERE\t'
-        query_select += "SELECT * \nFROM"
+        query_select = "SELECT * \nFROM"
+
+        if not self.solutions:
+            return None
+
+        # case for only one table
+        if len(list(itertools.chain(self.solutions))) == 1:
+            row = Tables.query.filter(Tables.user_id==self.user_id, and_(Tables.table_name==self.solutions[0])).first()
+            return "SELECT * \nFROM\t"+ env + self.solutions[0] + '\t-- '+row.description
+        # generate tables
         for index, table in enumerate(self.nodes):
             row = Tables.query.filter(Tables.user_id==self.user_id, and_(Tables.table_name==table)).first()
             if index == 0:
                 query_from += '\t' + env + table + '\t' + '-- ' + row.description + '\n'
             else:
                 query_from += 'AND' + '\t' + env + table + '\t' + '-- ' + row.description + '\n'
-            
+        # generate joins    
         for index, join in enumerate(self.solutions):
             if index != 0:
                 query_where += 'AND\t'
             f, t = join
-            row = Tables.query.filter(Tables.user_id==self.user_id, and_(Tables.table_name==f)).first()
+            # get tables description 
+            row_f = Tables.query.filter(Tables.user_id==self.user_id, and_(Tables.table_name==f)).first()
+            row_t = Tables.query.filter(Tables.user_id==self.user_id, and_(Tables.table_name==t)).first()
             for from_node in self.file[f]:
                 if from_node['from']['table'] == f and from_node['to']['table'] == t:
                     query_where += ' AND '.join([k1+'='+k2 for k1, k2 in zip(from_node['from']['key'], from_node['to']['key'])])
-                    query_where += ' -- '+ row.description +'\n'
+                    query_where += ' -- '+ row_f.description + ' & ' + row_t.description+ '\n'
         query_where += ';'
         return query_select + query_from +  query_where
 

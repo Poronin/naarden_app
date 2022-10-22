@@ -112,15 +112,18 @@ class UploadRelationshipsFile(FlaskForm):
     submit = SubmitField('Upload')
 
     def validate_file(self, file):
-        # converts from python file object into a JSON python object
-        f = json.load(self.file.data)
-        # converts a from JSON python object into a JSON string (python dictionary)
-        relationships_str = json.dumps(f)
-        foundField = Relationships.query.filter(Columns.user_id == int(current_user.id)).first()
-        if not foundField:
-            # field not found then create
-            new_relationships = Relationships(user_id=int(current_user.id), file=relationships_str)
-            db.session.add(new_relationships)
-        else:
-            # field found then update  
-            foundField.file = relationships_str
+        try:
+            # converts from python file object into a JSON python object
+            f = json.load(self.file.data)
+            # converts a from JSON python object into a JSON string (python dictionary)
+            relationships_str = json.dumps(f)
+            foundField = Relationships.query.filter(Columns.user_id == int(current_user.id)).first()
+            if not foundField:
+                # field not found then create
+                new_relationships = Relationships(user_id=int(current_user.id), file=relationships_str)
+                db.session.add(new_relationships)
+            else:
+                # field found then update  
+                foundField.file = relationships_str
+        except:
+            raise ValidationError("File contains errors")
