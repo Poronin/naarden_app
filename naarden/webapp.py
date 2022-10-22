@@ -1,15 +1,11 @@
 # Entry point for the application.
 from lib2to3.pytree import NodePattern
 from os import remove
-from naarden import app    # For application discovery by the 'flask' command.
 from naarden import views  # For import side-effects of setting up routes.
 from naarden.models import Relationships
 from naarden.models import Users, Tables, Columns
-from sqlalchemy import and_, or_
-from naarden import bcrypt
-from flask_login import current_user
+from sqlalchemy import and_
 import json
-import collections
 import itertools
 
 
@@ -44,10 +40,13 @@ class QueueFrontier():
 class Model():
     def __init__(self, user:int):
         row = Relationships.query.filter_by(user_id=user).first()
-        self.file = json.loads(row.file)
+        try:
+            self.file = json.loads(row.file)
+        except:
+            print("Relationship file not found")
         # list of solutions (all possible paths)
         self.solutions = []
-        self.nodes = set()
+        self.nodes = set()  
         self.num_tables = len(self.file)
         self.user_id = user
         #self.num_relations = len(relation for table in self.file for relation in table if relation)
@@ -173,6 +172,7 @@ class Model():
         # validate input 
         if len(nodes_to_find) < 2:
             self.solutions = nodes_to_find
+            self.nodes = nodes_to_find
             return self.solutions
         # create a set of pair nodes. For example: convert ['A','B','C'] into [('A','B') ('B','C')]
         nodes_to_find = list(self.pairwise(nodes_to_find))
@@ -200,23 +200,24 @@ class Model():
     def query(self, env='WMS.'):
         # generate tables
         query_from = str()
-        query_where = 'WHERE\t'
-        query_select = "SELECT * \nFROM"
+        query_where = 'WHERE\n\t\t'
+        query_select = "SELECT * \nFROM\n"
 
         if not self.solutions:
             return None
 
         # case for only one table
-        if len(list(itertools.chain(self.solutions))) == 1:
-            row = Tables.query.filter(Tables.user_id==self.user_id, and_(Tables.table_name==self.solutions[0])).first()
-            return "SELECT * \nFROM\t"+ env + self.solutions[0] + '\t-- '+row.description
+        if len(list(itertools.chain(self.nodes))) == 1:
+            row = Tables.query.filter(Tables.user_id==self.user_id, and_(Tables.table_name==self.nodes[0])).first()
+            return "SELECT * \nFROM\n\t\t"+ env + self.nodes[0] + '\t -- '+ row.description
+        
         # generate tables
         for index, table in enumerate(self.nodes):
             row = Tables.query.filter(Tables.user_id==self.user_id, and_(Tables.table_name==table)).first()
             if index == 0:
-                query_from += '\t' + env + table + '\t' + '-- ' + row.description + '\n'
+                query_from += '\t\t' + env + table + ' \t' + '-- ' + row.description + '\n'
             else:
-                query_from += 'AND' + '\t' + env + table + '\t' + '-- ' + row.description + '\n'
+                query_from += '\t\t'+ env + table  + ',' + '\t' + '-- ' + row.description + '\n'
         # generate joins    
         for index, join in enumerate(self.solutions):
             if index != 0:

@@ -1,7 +1,7 @@
 from crypt import methods
 from flask import flash, redirect, render_template, request, session, url_for
 from naarden.forms import RegistrationForm, LoginForm, UploadTablesFile, UploadColumnsFile, UploadRelationshipsFile
-from naarden.models import Users, Tables, Columns
+from naarden.models import Users, Tables, Columns, Relationships
 from naarden import app
 from naarden import db
 from sqlalchemy import and_, or_
@@ -154,9 +154,15 @@ def table_columns(table_columns):
 @app.route("/sqlquery", methods=['GET','POST'])
 @login_required
 def sqlquery():
+    try:
+        row = Relationships.query.filter_by(user_id=current_user.id).first()
+        file = json.loads(row.file)
+    except:
+        return("Relationship file not loaded")
     model = Model(current_user.id)
     model.search(tables_to_query)
     model.remove_bidirectional_nodes()
+    print(model.solutions)
     query = model.query()
     if not query:
         return "No relationship found"

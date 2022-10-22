@@ -24,7 +24,7 @@ from flask import current_app
 model = Model(1)
 
 # nodes input from user
-nodes_to_find = ['HLATELP', 'HLPLLPP']
+nodes_to_find = ['HLODPLP', 'HLODPEP']
 
 model.search(nodes_to_find)
 
