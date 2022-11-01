@@ -105,6 +105,7 @@ class Model():
             self.explored = set()
             branch_length = 0
             frontier.add(start)
+            _neighbors = []
 
             print(f'Start branch node: {start.state}')
             while True:
@@ -134,7 +135,7 @@ class Model():
                     solution.reverse()
                     branch_length = len(solution)
                     print(f'\tPosible solution: {solution}. Branch num: {branch_length}')
-                    # check the solution is valid so contains all given nodes
+                    # check if the solution is valid so contains the two given nodes
                     if self._validate_solution(pair_node, solution):
                         # store length solution
                         if len(solution) < max_branch_length:
@@ -175,20 +176,27 @@ class Model():
             self.nodes = nodes_to_find
             return self.solutions
         # create a set of pair nodes. For example: convert ['A','B','C'] into [('A','B') ('B','C')]
-        nodes_to_find = list(self.pairwise(nodes_to_find))
+        set_of_pair_nodes = list(self.pairwise(nodes_to_find))
         # for each pair of node find the best path
         
-        for pair_nodes in nodes_to_find:
+        for pair_nodes in set_of_pair_nodes:
+            print("Get patch for nodes: ",pair_nodes)
             _solution = self.get_path(pair_nodes)    
             if _solution:
                 self.solutions.append(_solution)
-
-        if not self.solutions:
+        
+        # validate if all tables are in the solution
+        if self.solutions == []:
             return None
 
         # get distinct nodes by adding them all to a set()
         nodes = list(itertools.chain.from_iterable(self.solutions))
         self.nodes = set(nodes)
+        
+        # validate all nodes to find are present in the nodes
+        if not self._validate_solution(nodes_to_find, self.nodes):
+            self.solutions = []
+            return None
 
         # create pair set of two. For example: convert ['A','B','C'] into [('A','B') ('B','C')]
         for path in self.solutions:
@@ -203,7 +211,7 @@ class Model():
         query_where = 'WHERE\n\t\t'
         query_select = "SELECT * \nFROM\n"
 
-        if not self.solutions:
+        if not len(self.solutions) > 0:
             return None
 
         # case for only one table
@@ -215,9 +223,9 @@ class Model():
         for index, table in enumerate(self.nodes):
             row = Tables.query.filter(Tables.user_id==self.user_id, and_(Tables.table_name==table)).first()
             if index == 0:
-                query_from += '\t\t' + env + table + ' \t' + '-- ' + row.description + '\n'
+                query_from += '\t\t ' + env + table + ' \t' + '-- ' + row.description + '\n'
             else:
-                query_from += '\t\t'+ env + table  + ',' + '\t' + '-- ' + row.description + '\n'
+                query_from += '\t\t,'+ env + table + '\t' + '-- ' + row.description + '\n'
         # generate joins    
         for index, join in enumerate(self.solutions):
             if index != 0:

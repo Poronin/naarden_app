@@ -5,5 +5,19 @@
 {% endblock %}
 
 {% block main %}
-   <p>Index</p>
+<div class="container-xxl text-center pt-4 text-center">
+    <div class="row justify-content-center mt-5">
+        <div class="col-10">
+            <p class="fs-2 pt-4 text-start">Naarden Web App</p>
+            <p class="fs-3 pt-3 text-start fw-lighter">Allows you to generate a ready-to-use SQL query based on your own input search data and your Relational Database Model.
+                <br><br>First of all, search for your desired Tables and Fields and click on the “add” button to add them into the search algorithm. Once all your requested tables have been added, press “Get query” button to trigger the search algorithm which returns the best path (the shortest) between all tables. 
+                <br><br>Note that all Tables, Fields and Relationship data has to be uploaded upfront from the Upload section.</p>
+        </div>
+    </div>
+    <div class="row justify-content-center m-5">
+        <div class="col-12">
+            <img src="{{ url_for('static', filename='schema_snowflake.png') }}" class="img-fluid" alt="Schema snowflake">
+        </div>
+    </div>
+</div>
 {% endblock %}

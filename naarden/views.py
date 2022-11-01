@@ -1,4 +1,3 @@
-from crypt import methods
 from flask import flash, redirect, render_template, request, session, url_for
 from naarden.forms import RegistrationForm, LoginForm, UploadTablesFile, UploadColumnsFile, UploadRelationshipsFile
 from naarden.models import Users, Tables, Columns, Relationships
@@ -28,6 +27,7 @@ def login():
         if user and bcrypt.check_password_hash(user.hash , form.password.data):
             login_user(user, remember=True)
             next_page = request.args.get('next')
+            tables_to_query = []
             return redirect(next_page) if next_page else redirect(url_for('tables'))
         else:
             flash(f'Log-in unsuccessfully', 'danger') 

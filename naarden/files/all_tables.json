@@ -2943,7 +2943,7 @@
 {"tab_nam": "HL_SUP_PHOTO", "tab_log_prop": "HLSUPHP", "tab_desc": "Photos of HDs and despatched HDs"},
 {"tab_nam": "HL_SUPPORT_IDE", "tab_log_prop": "HLSUPIP", "tab_desc": "HD ID"},
 {"tab_nam": "HL_SUPPORT_PRL", "tab_log_prop": "HLSUPLP", "tab_desc": "Post-pick HD"},
-{"tab_nam": "HL_SUPPORT", "tab_log_prop": "HLSUPPP", "tab_desc": "Support"},
+{"tab_nam": "HL_SUPPORT", "tab_log_prop": "HLSUPPP", "tab_desc": "Handling device - HD"},
 {"tab_nam": "HL_SAP_USI_PAST", "tab_log_prop": "HLSUPSP", "tab_desc": "Plant and SAP storage partition"},
 {"tab_nam": "HL_SUPPORT_VIR", "tab_log_prop": "HLSUPVP", "tab_desc": "Virtual HD"},
 {"tab_nam": "HL_SUP_TER_REC", "tab_log_prop": "HLSUREP", "tab_desc": "Handling device completed on-board receipt"},

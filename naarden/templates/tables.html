@@ -117,6 +117,7 @@ Tables
 
 <script type="text/javascript" src="{{ url_for('static', filename='myjs.js') }}"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
 <script>
 
     // buttons to add to the table
@@ -135,7 +136,9 @@ Tables
 
         //deactivate button 
         let button = document.getElementById('btn-all-table-' + tableName);
-        button.disabled = true;
+        if (!button.disabled){
+            button.disabled = true;
+        }
 
         let table_name = response[0].table_name.replace('<', '&lt;').replace('&', '&amp;');
         let logical_entity = response[0].logical_entity.replace('<', '&lt;').replace('&', '&amp;');
@@ -145,7 +148,6 @@ Tables
         let newRow = tbody.insertRow(-1);
         newRow.setAttribute('id', 'row-query-table-' + tableName);
         newRow.setAttribute('class', 'border-white border-5');
-
 
         let newCell0 = newRow.insertCell(0);
         newCell0.setAttribute('scope', 'row')
@@ -177,6 +179,7 @@ Tables
             console.log('Remove table name:' + tableName);
             removeTable(tableName);
         });
+        
         let buttonText = document.createTextNode('Remove');
         newButton.appendChild(buttonText)
         let newCell4 = newRow.insertCell(4);
@@ -202,7 +205,12 @@ Tables
 
         //activate button button from all table list
         let button = document.getElementById('btn-all-table-' + tableName);
-        button.disabled = false;
+        // if the button still in the webpage check...
+        if(button){
+            if (button.disabled){           // if it is disable and...
+                button.disabled = false;    // activate it
+            }
+        }
 
         // remove row button from query table list
         let row = document.getElementById('row-query-table-' + tableName);
