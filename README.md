@@ -1,6 +1,3 @@
-<div style="text-align: right"> Author: Leonardo Segovia | Alicante/Spain </div>
-
-
 # Naarden Web App
 Naarden is a web application that allows users to upload their own Relational Database Model to automatically generate a ready-to-use SQL query.
 
