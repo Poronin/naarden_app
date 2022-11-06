@@ -57,3 +57,4 @@ function storeTextToSearch() {
     sessionStorage.searchedText = document.getElementById("search").value;
     var searchedText = sessionStorage.getItem("searchedText");
 }
+

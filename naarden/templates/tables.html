@@ -120,110 +120,114 @@ Tables
 
 <script>
 
-    // buttons to add to the table
-    let btnAddTable = document.getElementsByClassName('btn-add-table');
-    Array.from(btnAddTable).forEach(button => {
-        button.addEventListener("click", function () {
-            let tableName = button.parentNode.parentNode.firstElementChild.nextElementSibling.innerText;
-            console.log('Add table name:' + tableName);
-            addTable(tableName);
-        });
+// buttons to add to the table
+let btnAddTable = document.getElementsByClassName('btn-add-table');
+Array.from(btnAddTable).forEach(button => {
+    button.addEventListener("click", function () {
+        let tableName = button.parentNode.parentNode.firstElementChild.nextElementSibling.innerText;
+        console.log('Add table name:' + tableName);
+        addTable(tableName);
     });
+});
 
-    async function addTable(tableName) {
-        let preResponse = await fetch("{{ url_for('tables') }}?add=" + tableName);
-        let response = await preResponse.json();
+// Add new table line in the query by sending a request to the backend first
+// the table is send back from the backend and a new line is added in the table query
+async function addTable(tableName) {
+    let preResponse = await fetch("{{ url_for('tables') }}?add=" + tableName);
+    let response = await preResponse.json();
 
-        //deactivate button 
-        let button = document.getElementById('btn-all-table-' + tableName);
-        if (!button.disabled){
-            button.disabled = true;
-        }
-
-        let table_name = response[0].table_name.replace('<', '&lt;').replace('&', '&amp;');
-        let logical_entity = response[0].logical_entity.replace('<', '&lt;').replace('&', '&amp;');
-        let description = response[0].description.replace('<', '&lt;').replace('&', '&amp;');
-
-        let tbody = document.getElementById('tbody-query-table');
-        let newRow = tbody.insertRow(-1);
-        newRow.setAttribute('id', 'row-query-table-' + tableName);
-        newRow.setAttribute('class', 'border-white border-5');
-
-        let newCell0 = newRow.insertCell(0);
-        newCell0.setAttribute('scope', 'row')
-        newCell0.className = 'text-end p-1';
-        let newText0 = document.createTextNode('');
-        newCell0.appendChild(newText0);
-
-        let newCell1 = newRow.insertCell(1);
-        newCell1.className = 'text-start p-1';
-        let newText1 = document.createTextNode(table_name);
-        newCell1.appendChild(newText1);
-
-        let newCell2 = newRow.insertCell(2);
-        newCell2.className = 'text-start p-1';
-        let newText2 = document.createTextNode(logical_entity);
-        newCell2.appendChild(newText2);
-
-        let newCell3 = newRow.insertCell(3);
-        newCell3.className = 'text-start p-1';
-        let newText3 = document.createTextNode(description);
-        newCell3.appendChild(newText3);
-
-        let newButton = document.createElement('button')
-        newButton.setAttribute('id', 'btn-remove-table-' + tableName)
-        newButton.setAttribute('class', 'btn btn-danger btn-sm btn-remove-table')
-        newButton.setAttribute('type', 'submit')
-        newButton.addEventListener("click", function () {
-            let tableName = button.parentNode.parentNode.firstElementChild.nextElementSibling.innerText;
-            console.log('Remove table name:' + tableName);
-            removeTable(tableName);
-        });
-        
-        let buttonText = document.createTextNode('Remove');
-        newButton.appendChild(buttonText)
-        let newCell4 = newRow.insertCell(4);
-        newCell4.className = 'text-end p-1';
-        newCell4.appendChild(newButton);
-
+    //deactivate button 
+    let button = document.getElementById('btn-all-table-' + tableName);
+    if (!button.disabled){
+        button.disabled = true;
     }
 
-    // buttons to remove from the table
-    let btnRemoveTable = document.getElementsByClassName('btn-remove-table');
-    Array.from(btnRemoveTable).forEach(button => {
-        button.addEventListener("click", function () {
-            let tableName = button.parentNode.parentNode.firstElementChild.nextElementSibling.innerText;
-            console.log('Remove table name:' + tableName);
-            removeTable(tableName);
-        });
+    let table_name = response[0].table_name.replace('<', '&lt;').replace('&', '&amp;');
+    let logical_entity = response[0].logical_entity.replace('<', '&lt;').replace('&', '&amp;');
+    let description = response[0].description.replace('<', '&lt;').replace('&', '&amp;');
+
+    // add line in the table query
+    let tbody = document.getElementById('tbody-query-table');
+    let newRow = tbody.insertRow(-1);
+    newRow.setAttribute('id', 'row-query-table-' + tableName);
+    newRow.setAttribute('class', 'border-white border-5');
+
+    let newCell0 = newRow.insertCell(0);
+    newCell0.setAttribute('scope', 'row')
+    newCell0.className = 'text-end p-1';
+    let newText0 = document.createTextNode('');
+    newCell0.appendChild(newText0);
+
+    let newCell1 = newRow.insertCell(1);
+    newCell1.className = 'text-start p-1';
+    let newText1 = document.createTextNode(table_name);
+    newCell1.appendChild(newText1);
+
+    let newCell2 = newRow.insertCell(2);
+    newCell2.className = 'text-start p-1';
+    let newText2 = document.createTextNode(logical_entity);
+    newCell2.appendChild(newText2);
+
+    let newCell3 = newRow.insertCell(3);
+    newCell3.className = 'text-start p-1';
+    let newText3 = document.createTextNode(description);
+    newCell3.appendChild(newText3);
+
+    // the new line has a remove button
+    let newButton = document.createElement('button')
+    newButton.setAttribute('id', 'btn-remove-table-' + tableName)
+    newButton.setAttribute('class', 'btn btn-danger btn-sm btn-remove-table')
+    newButton.setAttribute('type', 'submit')
+    newButton.addEventListener("click", function () {
+        let tableName = button.parentNode.parentNode.firstElementChild.nextElementSibling.innerText;
+        console.log('Remove table name:' + tableName);
+        removeTable(tableName);
     });
+    
+    let buttonText = document.createTextNode('Remove');
+    newButton.appendChild(buttonText)
+    let newCell4 = newRow.insertCell(4);
+    newCell4.className = 'text-end p-1';
+    newCell4.appendChild(newButton);
 
-    async function removeTable(tableName) {
+}
 
-        let response = await fetch("{{ url_for('tables') }}?remove=" + tableName);
-        response = await response.json();
+// buttons to remove from the table
+let btnRemoveTable = document.getElementsByClassName('btn-remove-table');
+Array.from(btnRemoveTable).forEach(button => {
+    button.addEventListener("click", function () {
+        let tableName = button.parentNode.parentNode.firstElementChild.nextElementSibling.innerText;
+        console.log('Remove table name:' + tableName);
+        removeTable(tableName);
+    });
+});
 
-        //activate button button from all table list
-        let button = document.getElementById('btn-all-table-' + tableName);
-        // if the button still in the webpage check...
-        if(button){
-            if (button.disabled){           // if it is disable and...
-                button.disabled = false;    // activate it
-            }
+async function removeTable(tableName) {
+
+    let response = await fetch("{{ url_for('tables') }}?remove=" + tableName);
+    response = await response.json();
+
+    //activate button button from all table list
+    let button = document.getElementById('btn-all-table-' + tableName);
+    // if the button still in the webpage check...
+    if(button){
+        if (button.disabled){           // if it is disable and...
+            button.disabled = false;    // activate it
         }
-
-        // remove row button from query table list
-        let row = document.getElementById('row-query-table-' + tableName);
-        row.outerHTML = '';
     }
 
-    async function get_sql_query(tableName) {
-        let response = await fetch("{{ url_for('sqlquery') }}");
-        response = await response.text( );
-        let text_area = document.getElementById('floatingTextarea2');
-        text_area.innerHTML =' '
-        text_area.innerHTML = response
-    }
+    // remove row button from query table list
+    let row = document.getElementById('row-query-table-' + tableName);
+    row.outerHTML = '';
+}
+
+async function get_sql_query(tableName) {
+    let response = await fetch("{{ url_for('sqlquery') }}");
+    response = await response.text( );
+    let text_area = document.getElementById('floatingTextarea2');
+    text_area.innerHTML =' '
+    text_area.innerHTML = response
+}
 
 </script>
 

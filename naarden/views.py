@@ -9,11 +9,12 @@ from flask_login import login_user, logout_user, current_user, login_required
 import json
 from naarden.webapp import Model
 
-added_tables = None
-tables_to_query = []
 
 @app.route("/")
 def index():
+    # store tables requested by the user
+    if session.get("tables") is None:
+        session["tables"]=[]
     return render_template('index.html')
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -25,9 +26,10 @@ def login():
     if form.validate_on_submit():
         user = Users.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.hash , form.password.data):
+            # initiate variables tables when logging in
+            session["tables"]=[]
             login_user(user, remember=True)
             next_page = request.args.get('next')
-            tables_to_query = []
             return redirect(next_page) if next_page else redirect(url_for('tables'))
         else:
             flash(f'Log-in unsuccessfully', 'danger') 
@@ -54,6 +56,8 @@ def register():
 
 @app.route("/logout")
 def logout():
+    # initiate variables tables when leaving
+    session["tables"]=[]
     logout_user()
     return redirect(url_for('index'))
 
@@ -65,6 +69,8 @@ def tables():
     q = request.args.get("q")
     add = request.args.get("add")
     remove = request.args.get("remove")
+    # get the tables saved in the session
+    tables_to_query = session["tables"]
     # process requests
     if q:
         q = "%{}%".format(request.args.get("q")).upper()
@@ -80,18 +86,22 @@ def tables():
                                                 )
                                             )
                                         )
+    # users add a table to query
     elif add:
         if not add in tables_to_query:
             tables_to_query.append(add)
+            session["tables"] = tables_to_query
             added_tables = Tables.query.filter(Tables.user_id==current_user.id, and_(Tables.table_name == add)).first()
             print(f'Added table: {added_tables.table_name}')
             print(f'List of tables to query after adding: {tables_to_query}')
             return [{"table_name":added_tables.table_name, "logical_entity":added_tables.logical_entity, "description":added_tables.description}]     
         else:
             return {}
+     # users remove a table from the query
     elif remove:
         if remove in tables_to_query:
             tables_to_query.remove(remove)
+            session["tables"] = tables_to_query
             added_tables = Tables.query.filter(Tables.user_id==current_user.id, and_(Tables.table_name == remove)).first()
             print(f'Removed talble: {added_tables.table_name}')
             print(f'List of tables to query after removing: {tables_to_query}')
@@ -159,6 +169,8 @@ def sqlquery():
         file = json.loads(row.file)
     except:
         return("Relationship file not loaded")
+    # get the tables saved in the session
+    tables_to_query = session["tables"]
     model = Model(current_user.id)
     model.search(tables_to_query)
     model.remove_bidirectional_nodes()
