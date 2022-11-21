@@ -1,7 +1,7 @@
 # Naarden Web App
 Naarden is a web application that allows users to upload their own Relational Database Model to automatically generate a ready-to-use SQL query.
 
-## Video Demo: ULR
+## Video Demo: [ULR](https://youtu.be/YrulS2jJciw)
 
 ## Background information
 A relational database data is structured in tables that consist of columns and rows. Tables are linked to each other by means of primary keys and foreign keys. These links are called relationships. 
